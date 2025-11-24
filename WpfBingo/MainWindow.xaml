@@ -3,232 +3,298 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfBingo"
         mc:Ignorable="d"
-        Title="ビンゴ抽選機 - Bingo Draw Machine" Height="600" Width="900"
-        WindowStartupLocation="CenterScreen"
-        Background="#F5F5F5">
+        Title="ビンゴ抽選機" Height="800" Width="1000" WindowStartupLocation="CenterScreen" Background="#F5F5F5">
     <Window.Resources>
-        <!-- Animation for the current number -->
+        <!-- Brush for background color flashing -->
+        <SolidColorBrush x:Key="WindowBgBrush" x:Name="WindowBgBrush" Color="#F5F5F5"/>
+
+        <!-- Pulse storyboard patterns for main number -->
+        <Storyboard x:Key="NumberPulsePattern1">
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="1.12" Duration="0:0:0.25" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="1.12" Duration="0:0:0.25" AutoReverse="True"/>
+        </Storyboard>
+        <Storyboard x:Key="NumberPulsePattern2">
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="1.25" Duration="0:0:0.28" AutoReverse="True"><DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction></DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="1.25" Duration="0:0:0.28" AutoReverse="True"><DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction></DoubleAnimation>
+        </Storyboard>
+        <Storyboard x:Key="NumberPulsePattern3">
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="1.18" Duration="0:0:0.22" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="1.18" Duration="0:0:0.22" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="Opacity" From="1" To="0.85" Duration="0:0:0.22" AutoReverse="True"/>
+        </Storyboard>
+        <Storyboard x:Key="NumberPulsePattern4">
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="1.35" Duration="0:0:0.30" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="1.35" Duration="0:0:0.30" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.BlurRadius)" From="25" To="35" Duration="0:0:0.30" AutoReverse="True"/>
+        </Storyboard>
+        <Storyboard x:Key="NumberPulsePattern5">
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="1.2" Duration="0:0:0.16" AutoReverse="True" RepeatBehavior="3x"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="1.2" Duration="0:0:0.16" AutoReverse="True" RepeatBehavior="3x"/>
+        </Storyboard>
         <Storyboard x:Key="NumberDrawAnimation">
-            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder"
-                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
-                           From="0.5" To="1.2" Duration="0:0:0.3" AutoReverse="False"/>
-            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder"
-                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
-                           From="0.5" To="1.2" Duration="0:0:0.3" AutoReverse="False"/>
-            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder"
-                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
-                           From="1.2" To="1.0" Duration="0:0:0.2" BeginTime="0:0:0.3"/>
-            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder"
-                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
-                           From="1.2" To="1.0" Duration="0:0:0.2" BeginTime="0:0:0.3"/>
-            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder"
-                           Storyboard.TargetProperty="Opacity"
-                           From="0" To="1" Duration="0:0:0.3"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="1.12" Duration="0:0:0.25" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder" Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="1.12" Duration="0:0:0.25" AutoReverse="True"/>
         </Storyboard>
 
-        <!-- Style for number balls in history -->
-        <Style x:Key="NumberBallStyle" TargetType="Border">
-            <Setter Property="Background" Value="#2196F3"/>
-            <Setter Property="CornerRadius" Value="25"/>
-            <Setter Property="Width" Value="50"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Margin" Value="5"/>
-            <Style.Triggers>
-                <EventTrigger RoutedEvent="Border.Loaded">
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                           From="0" To="1" Duration="0:0:0.5"/>
-                            <DoubleAnimation Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
-                                           From="0" To="1" Duration="0:0:0.4">
-                                <DoubleAnimation.EasingFunction>
-                                    <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
-                                </DoubleAnimation.EasingFunction>
-                            </DoubleAnimation>
-                            <DoubleAnimation Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
-                                           From="0" To="1" Duration="0:0:0.4">
-                                <DoubleAnimation.EasingFunction>
-                                    <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
-                                </DoubleAnimation.EasingFunction>
-                            </DoubleAnimation>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-            </Style.Triggers>
-        </Style>
-    </Window.Resources>
+        <!-- Overlay storyboard patterns -->
+        <Storyboard x:Key="OverlayAnimationPattern1">
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.15"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="1" To="0" BeginTime="0:0:2" Duration="0:0:0.35"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleX" From="0" To="1.3" Duration="0:0:0.4"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleY" From="0" To="1.3" Duration="0:0:0.4"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberRotate" Storyboard.TargetProperty="Angle" From="0" To="720" Duration="0:0:1.2"/>
+        </Storyboard>
+        <Storyboard x:Key="OverlayAnimationPattern2">
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.18"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleX" From="0.2" To="1.4" Duration="0:0:0.32" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleY" From="0.2" To="1.4" Duration="0:0:0.32" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberRotate" Storyboard.TargetProperty="Angle" From="0" To="360" Duration="0:0:0.7"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="1" To="0" BeginTime="0:0:1.8" Duration="0:0:0.35"/>
+        </Storyboard>
+        <Storyboard x:Key="OverlayAnimationPattern3">
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.12"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberTranslate" Storyboard.TargetProperty="Y" From="-400" To="0" Duration="0:0:0.55"><DoubleAnimation.EasingFunction><QuadraticEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction></DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleX" From="0.8" To="1.15" Duration="0:0:0.55" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleY" From="0.8" To="1.15" Duration="0:0:0.55" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="1" To="0" BeginTime="0:0:2.0" Duration="0:0:0.30"/>
+        </Storyboard>
+        <Storyboard x:Key="OverlayAnimationPattern4">
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.15"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberRotate" Storyboard.TargetProperty="Angle" From="0" To="1080" Duration="0:0:1.4"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleX" From="0" To="1.5" Duration="0:0:0.5"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleY" From="0" To="1.5" Duration="0:0:0.5"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleX" From="1.5" To="1" BeginTime="0:0:0.5" Duration="0:0:0.6"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleY" From="1.5" To="1" BeginTime="0:0:0.5" Duration="0:0:0.6"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="1" To="0" BeginTime="0:0:2.2" Duration="0:0:0.40"/>
+        </Storyboard>
+        <Storyboard x:Key="OverlayAnimationPattern5">
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.10"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberTranslate" Storyboard.TargetProperty="X" From="-800" To="0" Duration="0:0:0.55"><DoubleAnimation.EasingFunction><QuadraticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction></DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleX" From="1" To="1.3" BeginTime="0:0:0.55" Duration="0:0:0.18" AutoReverse="True" RepeatBehavior="2x"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleY" From="1" To="1.3" BeginTime="0:0:0.55" Duration="0:0:0.18" AutoReverse="True" RepeatBehavior="2x"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="1" To="0" BeginTime="0:0:2" Duration="0:0:0.35"/>
+        </Storyboard>
+        <Storyboard x:Key="OverlayDrawAnimation">
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.15"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayGrid" Storyboard.TargetProperty="Opacity" From="1" To="0" BeginTime="0:0:2" Duration="0:0:0.35"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleX" From="0" To="1.3" Duration="0:0:0.4"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberScale" Storyboard.TargetProperty="ScaleY" From="0" To="1.3" Duration="0:0:0.4"/>
+            <DoubleAnimation Storyboard.TargetName="OverlayNumberRotate" Storyboard.TargetProperty="Angle" From="0" To="720" Duration="0:0:1.2"/>
+        </Storyboard>
 
+        <!-- Background animation patterns (use BgColorRect & effect shapes) -->
+        <Storyboard x:Key="BackgroundAnimationPattern1">
+            <ColorAnimation Storyboard.TargetName="BgColorRect" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" From="#F5F5F5" To="#FFE082" Duration="0:0:0.25" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="BgRadialFlash" Storyboard.TargetProperty="Opacity" From="0" To="0.55" Duration="0:0:0.18" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="BgRadialFlash" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0" To="4" Duration="0:0:0.45"/>
+            <DoubleAnimation Storyboard.TargetName="BgRadialFlash" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0" To="4" Duration="0:0:0.45"/>
+            <DoubleAnimation Storyboard.TargetName="BgPulseRing" Storyboard.TargetProperty="Opacity" From="0" To="0.85" Duration="0:0:0.22" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="BgPulseRing" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0.3" To="1.6" Duration="0:0:0.45"/>
+            <DoubleAnimation Storyboard.TargetName="BgPulseRing" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0.3" To="1.6" Duration="0:0:0.45"/>
+        </Storyboard>
+        <Storyboard x:Key="BackgroundAnimationPattern2">
+            <ColorAnimation Storyboard.TargetName="BgColorRect" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" From="#F5F5F5" To="#E3F2FD" Duration="0:0:0.28" AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="BgShimmer" Storyboard.TargetProperty="Opacity" From="0" To="0.35" Duration="0:0:0.20"/>
+            <DoubleAnimation Storyboard.TargetName="BgShimmer" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="-800" To="800" Duration="0:0:1.4"/>
+            <DoubleAnimation Storyboard.TargetName="BgShimmer" Storyboard.TargetProperty="Opacity" From="0.35" To="0" BeginTime="0:0:1.2" Duration="0:0:0.25"/>
+        </Storyboard>
+        <Storyboard x:Key="BackgroundAnimationPattern3">
+            <DoubleAnimation Storyboard.TargetName="BgGradientSweep" Storyboard.TargetProperty="Opacity" From="0" To="0.4" Duration="0:0:0.22"/>
+            <DoubleAnimation Storyboard.TargetName="BgGradientSweep" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="-1000" To="1000" Duration="0:0:1.6"/>
+            <DoubleAnimation Storyboard.TargetName="BgGradientSweep" Storyboard.TargetProperty="Opacity" From="0.4" To="0" BeginTime="0:0:1.3" Duration="0:0:0.3"/>
+        </Storyboard>
+        <Storyboard x:Key="BackgroundAnimationPattern4">
+            <DoubleAnimation Storyboard.TargetName="BgDiagonalGlow" Storyboard.TargetProperty="Opacity" From="0" To="0.45" Duration="0:0:0.25"/>
+            <DoubleAnimation Storyboard.TargetName="BgDiagonalGlow" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="-1200" To="1200" Duration="0:0:1.6"/>
+            <DoubleAnimation Storyboard.TargetName="BgDiagonalGlow" Storyboard.TargetProperty="Opacity" From="0.45" To="0" BeginTime="0:0:1.2" Duration="0:0:0.35"/>
+        </Storyboard>
+        <Storyboard x:Key="BackgroundAnimationPattern5">
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="BgColorRect" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)">
+                <LinearColorKeyFrame KeyTime="0:0:0" Value="#F5F5F5"/>
+                <LinearColorKeyFrame KeyTime="0:0:0.12" Value="#FFCDD2"/>
+                <LinearColorKeyFrame KeyTime="0:0:0.24" Value="#F5F5F5"/>
+                <LinearColorKeyFrame KeyTime="0:0:0.36" Value="#B3E5FC"/>
+                <LinearColorKeyFrame KeyTime="0:0:0.6" Value="#F5F5F5"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimation Storyboard.TargetName="BgPulseRing" Storyboard.TargetProperty="Opacity" From="0" To="0.75" Duration="0:0:0.12" AutoReverse="True" RepeatBehavior="3x"/>
+            <DoubleAnimation Storyboard.TargetName="BgPulseRing" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0.6" To="1.4" Duration="0:0:0.12" AutoReverse="True" RepeatBehavior="3x"/>
+            <DoubleAnimation Storyboard.TargetName="BgPulseRing" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0.6" To="1.4" Duration="0:0:0.12" AutoReverse="True" RepeatBehavior="3x"/>
+            <DoubleAnimation Storyboard.TargetName="BgRadialFlash" Storyboard.TargetProperty="Opacity" From="0" To="0.4" Duration="0:0:0.12" AutoReverse="True" RepeatBehavior="2x"/>
+            <DoubleAnimation Storyboard.TargetName="BgRadialFlash" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0.2" To="3.5" Duration="0:0:0.5"/>
+            <DoubleAnimation Storyboard.TargetName="BgRadialFlash" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0.2" To="3.5" Duration="0:0:0.5"/>
+        </Storyboard>
+
+        <!-- Template for grouped numbers with drawn highlight -->
+        <DataTemplate x:Key="GroupedNumberTemplate">
+            <Border Width="{Binding DataContext.NumberCellSize, RelativeSource={RelativeSource AncestorType=Window}}" Height="{Binding DataContext.NumberCellSize, RelativeSource={RelativeSource AncestorType=Window}}" CornerRadius="20" Margin="3" BorderThickness="2">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="#EEEEEE"/>
+                        <Setter Property="BorderBrush" Value="#BDBDBD"/>
+                        <Setter Property="Opacity" Value="0.85"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsDrawn}" Value="True">
+                                <Setter Property="Background" Value="#FF5722"/>
+                                <Setter Property="BorderBrush" Value="#BF360C"/>
+                                <Setter Property="Opacity" Value="1"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <TextBlock Text="{Binding Value}" FontSize="{Binding DataContext.NumberFontSize, RelativeSource={RelativeSource AncestorType=Window}}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#424242"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDrawn}" Value="True"><Setter Property="Foreground" Value="White"/></DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Text="✓" FontSize="14" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="2" Visibility="Collapsed">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDrawn}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="2*"/>
-            <RowDefinition Height="3*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <!-- Title Bar -->
+        <!-- Background effect layer (behind content) -->
+        <Grid Grid.RowSpan="3" IsHitTestVisible="False" Panel.ZIndex="0">
+            <Canvas Width="1000" Height="800">
+                <!-- Color rectangle for brush animation -->
+                <Rectangle x:Name="BgColorRect" Width="1000" Height="800" Fill="{StaticResource WindowBgBrush}"/>
+                <!-- Radial flash ellipse -->
+                <Ellipse x:Name="BgRadialFlash" Width="280" Height="280" Opacity="0" RenderTransformOrigin="0.5,0.5" Canvas.Left="360" Canvas.Top="260">
+                    <Ellipse.Fill>
+                        <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </RadialGradientBrush>
+                    </Ellipse.Fill>
+                    <Ellipse.RenderTransform><ScaleTransform ScaleX="0" ScaleY="0"/></Ellipse.RenderTransform>
+                </Ellipse>
+                <!-- Gradient sweep rectangle -->
+                <Rectangle x:Name="BgGradientSweep" Width="600" Height="900" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#00FFFFFF" Offset="0"/>
+                            <GradientStop Color="#BBDEFB" Offset="0.5"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                    <Rectangle.RenderTransform><TranslateTransform X="-1000" Y="0"/></Rectangle.RenderTransform>
+                </Rectangle>
+                <!-- Shimmer rectangle -->
+                <Rectangle x:Name="BgShimmer" Width="400" Height="900" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#00FFFFFF" Offset="0"/>
+                            <GradientStop Color="#FFFFFFFF" Offset="0.45"/>
+                            <GradientStop Color="#FFFFFFFF" Offset="0.55"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                    <Rectangle.RenderTransform><TranslateTransform X="-800" Y="0"/></Rectangle.RenderTransform>
+                </Rectangle>
+                <!-- Pulse ring -->
+                <Ellipse x:Name="BgPulseRing" Width="260" Height="260" StrokeThickness="8" StrokeDashArray="2 4" Opacity="0" Canvas.Left="370" Canvas.Top="270" RenderTransformOrigin="0.5,0.5">
+                    <Ellipse.Stroke>
+                        <SolidColorBrush Color="#FFE082"/>
+                    </Ellipse.Stroke>
+                    <Ellipse.RenderTransform><ScaleTransform ScaleX="0.3" ScaleY="0.3"/></Ellipse.RenderTransform>
+                </Ellipse>
+                <!-- Diagonal glow bar -->
+                <Rectangle x:Name="BgDiagonalGlow" Width="1400" Height="220" Opacity="0" Canvas.Left="-200" Canvas.Top="140" RenderTransformOrigin="0.5,0.5">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#00FFFFFF" Offset="0"/>
+                            <GradientStop Color="#FFF9C4" Offset="0.5"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                    <Rectangle.LayoutTransform><RotateTransform Angle="-35"/></Rectangle.LayoutTransform>
+                    <Rectangle.RenderTransform><TranslateTransform X="-1200" Y="0"/></Rectangle.RenderTransform>
+                </Rectangle>
+            </Canvas>
+        </Grid>
+        <!-- Title -->
         <Border Grid.Row="0" Background="#1976D2" Padding="20,15">
-            <TextBlock Text="ビンゴ抽選機 / Bingo Draw Machine" 
-                      FontSize="28" 
-                      FontWeight="Bold" 
-                      Foreground="White"
-                      HorizontalAlignment="Center"/>
+            <TextBlock Text="ビンゴ抽選機" FontSize="32" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
         </Border>
-
-        <!-- Current Number Display -->
+        <!-- Current number panel -->
         <Grid Grid.Row="1" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
-            <TextBlock Grid.Row="0" Text="現在の番号 / Current Number" 
-                      FontSize="20" 
-                      HorizontalAlignment="Center"
-                      Margin="0,0,0,10"
-                      Foreground="#424242"/>
-
-            <Border x:Name="CurrentNumberBorder"
-                   Grid.Row="1"
-                   Background="#FF9800"
-                   CornerRadius="20"
-                   Width="250"
-                   Height="250"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   RenderTransformOrigin="0.5,0.5">
-                <Border.RenderTransform>
-                    <ScaleTransform ScaleX="1" ScaleY="1"/>
-                </Border.RenderTransform>
-                <Border.Effect>
-                    <DropShadowEffect Color="#000000" Opacity="0.3" BlurRadius="20" ShadowDepth="5"/>
-                </Border.Effect>
-                <TextBlock Text="{Binding CurrentNumberDisplay}" 
-                          FontSize="120" 
-                          FontWeight="Bold"
-                          Foreground="White"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="0" Text="現在の番号" FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,10" Foreground="#424242"/>
+            <Border x:Name="CurrentNumberBorder" Grid.Row="1" Background="#FF9800" CornerRadius="24" Padding="20" MinWidth="160" MinHeight="160" MaxWidth="360" MaxHeight="360" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" SizeChanged="CurrentNumberBorder_SizeChanged">
+                <Border.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Border.RenderTransform>
+                <Border.Effect><DropShadowEffect Color="#000000" Opacity="0.35" BlurRadius="25" ShadowDepth="6"/></Border.Effect>
+                <TextBlock Text="{Binding CurrentNumberDisplay}" FontSize="{Binding CurrentNumberFontSize}" FontWeight="Black" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
             </Border>
-
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                <Button Command="{Binding DrawNumberCommand}"
-                       Content="抽選 / Draw"
-                       FontSize="18"
-                       FontWeight="Bold"
-                       Padding="30,15"
-                       Margin="10,0"
-                       Background="#4CAF50"
-                       Foreground="White"
-                       BorderThickness="0"
-                       Cursor="Hand">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}"
-                                               CornerRadius="8"
-                                               Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#66BB6A"/>
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter Property="Background" Value="#BDBDBD"/>
-                                    <Setter Property="Cursor" Value="Arrow"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-
-                <Button Command="{Binding ResetCommand}"
-                       Content="リセット / Reset"
-                       FontSize="18"
-                       FontWeight="Bold"
-                       Padding="30,15"
-                       Margin="10,0"
-                       Background="#F44336"
-                       Foreground="White"
-                       BorderThickness="0"
-                       Cursor="Hand">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}"
-                                               CornerRadius="8"
-                                               Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#EF5350"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,22,0,0">
+                <Button Command="{Binding DrawNumberCommand}" Content="抽選" FontSize="18" FontWeight="Bold" Padding="30,15" Margin="10,0" Background="#4CAF50" Foreground="White" BorderThickness="0"/>
+                <Button Command="{Binding ResetCommand}" Content="リセット" FontSize="18" FontWeight="Bold" Padding="30,15" Margin="10,0" Background="#F44336" Foreground="White" BorderThickness="0"/>
             </StackPanel>
         </Grid>
-
-        <!-- History Display -->
-        <Grid Grid.Row="2" Margin="20,0,20,20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <Border Grid.Row="0" Background="#1976D2" Padding="10" CornerRadius="8,8,0,0">
-                <TextBlock Text="抽選履歴 / Draw History" 
-                          FontSize="18" 
-                          FontWeight="Bold"
-                          Foreground="White"
-                          HorizontalAlignment="Center"/>
-            </Border>
-
-            <Border Grid.Row="1" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="0,0,8,8">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
-                    <ItemsControl ItemsSource="{Binding DrawnNumbers}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Style="{StaticResource NumberBallStyle}"
-                                       RenderTransformOrigin="0.5,0.5">
-                                    <Border.RenderTransform>
-                                        <ScaleTransform ScaleX="1" ScaleY="1"/>
-                                    </Border.RenderTransform>
-                                    <Border.Effect>
-                                        <DropShadowEffect Color="#000000" Opacity="0.2" BlurRadius="8" ShadowDepth="3"/>
-                                    </Border.Effect>
-                                    <TextBlock Text="{Binding}" 
-                                             FontSize="24" 
-                                             FontWeight="Bold"
-                                             Foreground="White"
-                                             HorizontalAlignment="Center"
-                                             VerticalAlignment="Center"/>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Border>
+        <!-- Grouped numbers (always fully visible) -->
+        <Border Grid.Row="2" Margin="20" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="10">
+            <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                <ItemsControl ItemsSource="{Binding DynamicColumns}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="#1976D2" BorderThickness="1" CornerRadius="8" Margin="6" Padding="6" Background="#FAFAFA">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Label}" FontSize="16" FontWeight="Bold" Foreground="#1976D2" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                                    <ItemsControl ItemsSource="{Binding Numbers}" ItemTemplate="{StaticResource GroupedNumberTemplate}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Viewbox>
+        </Border>
+        <!-- Overlay -->
+        <Grid x:Name="OverlayGrid" Grid.RowSpan="3" Background="#80000000" Visibility="Collapsed" Opacity="0" IsHitTestVisible="False" Panel.ZIndex="100">
+            <Canvas x:Name="ConfettiCanvas"/>
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock x:Name="OverlayNumberText" Text="" FontSize="240" FontWeight="Black" RenderTransformOrigin="0.5,0.5" Foreground="White">
+                    <TextBlock.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform x:Name="OverlayNumberScale" ScaleX="1" ScaleY="1"/>
+                            <RotateTransform x:Name="OverlayNumberRotate" Angle="0"/>
+                            <TranslateTransform x:Name="OverlayNumberTranslate" X="0" Y="0"/>
+                        </TransformGroup>
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
