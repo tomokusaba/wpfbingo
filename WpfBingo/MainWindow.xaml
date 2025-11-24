@@ -1,0 +1,234 @@
+﻿<Window x:Class="WpfBingo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfBingo"
+        mc:Ignorable="d"
+        Title="ビンゴ抽選機 - Bingo Draw Machine" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F5F5">
+    <Window.Resources>
+        <!-- Animation for the current number -->
+        <Storyboard x:Key="NumberDrawAnimation">
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder"
+                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
+                           From="0.5" To="1.2" Duration="0:0:0.3" AutoReverse="False"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder"
+                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
+                           From="0.5" To="1.2" Duration="0:0:0.3" AutoReverse="False"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder"
+                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
+                           From="1.2" To="1.0" Duration="0:0:0.2" BeginTime="0:0:0.3"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder"
+                           Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
+                           From="1.2" To="1.0" Duration="0:0:0.2" BeginTime="0:0:0.3"/>
+            <DoubleAnimation Storyboard.TargetName="CurrentNumberBorder"
+                           Storyboard.TargetProperty="Opacity"
+                           From="0" To="1" Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <!-- Style for number balls in history -->
+        <Style x:Key="NumberBallStyle" TargetType="Border">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="CornerRadius" Value="25"/>
+            <Setter Property="Width" Value="50"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="5"/>
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="Border.Loaded">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                           From="0" To="1" Duration="0:0:0.5"/>
+                            <DoubleAnimation Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
+                                           From="0" To="1" Duration="0:0:0.4">
+                                <DoubleAnimation.EasingFunction>
+                                    <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
+                                           From="0" To="1" Duration="0:0:0.4">
+                                <DoubleAnimation.EasingFunction>
+                                    <BackEase EasingMode="EaseOut" Amplitude="0.3"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="3*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title Bar -->
+        <Border Grid.Row="0" Background="#1976D2" Padding="20,15">
+            <TextBlock Text="ビンゴ抽選機 / Bingo Draw Machine" 
+                      FontSize="28" 
+                      FontWeight="Bold" 
+                      Foreground="White"
+                      HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- Current Number Display -->
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="現在の番号 / Current Number" 
+                      FontSize="20" 
+                      HorizontalAlignment="Center"
+                      Margin="0,0,0,10"
+                      Foreground="#424242"/>
+
+            <Border x:Name="CurrentNumberBorder"
+                   Grid.Row="1"
+                   Background="#FF9800"
+                   CornerRadius="20"
+                   Width="250"
+                   Height="250"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </Border.RenderTransform>
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" Opacity="0.3" BlurRadius="20" ShadowDepth="5"/>
+                </Border.Effect>
+                <TextBlock Text="{Binding CurrentNumberDisplay}" 
+                          FontSize="120" 
+                          FontWeight="Bold"
+                          Foreground="White"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"/>
+            </Border>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                <Button Command="{Binding DrawNumberCommand}"
+                       Content="抽選 / Draw"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Padding="30,15"
+                       Margin="10,0"
+                       Background="#4CAF50"
+                       Foreground="White"
+                       BorderThickness="0"
+                       Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                               CornerRadius="8"
+                                               Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#66BB6A"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Background" Value="#BDBDBD"/>
+                                    <Setter Property="Cursor" Value="Arrow"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Command="{Binding ResetCommand}"
+                       Content="リセット / Reset"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Padding="30,15"
+                       Margin="10,0"
+                       Background="#F44336"
+                       Foreground="White"
+                       BorderThickness="0"
+                       Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                               CornerRadius="8"
+                                               Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#EF5350"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- History Display -->
+        <Grid Grid.Row="2" Margin="20,0,20,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="#1976D2" Padding="10" CornerRadius="8,8,0,0">
+                <TextBlock Text="抽選履歴 / Draw History" 
+                          FontSize="18" 
+                          FontWeight="Bold"
+                          Foreground="White"
+                          HorizontalAlignment="Center"/>
+            </Border>
+
+            <Border Grid.Row="1" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="0,0,8,8">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <ItemsControl ItemsSource="{Binding DrawnNumbers}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource NumberBallStyle}"
+                                       RenderTransformOrigin="0.5,0.5">
+                                    <Border.RenderTransform>
+                                        <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                    </Border.RenderTransform>
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#000000" Opacity="0.2" BlurRadius="8" ShadowDepth="3"/>
+                                    </Border.Effect>
+                                    <TextBlock Text="{Binding}" 
+                                             FontSize="24" 
+                                             FontWeight="Bold"
+                                             Foreground="White"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
