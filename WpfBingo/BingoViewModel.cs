@@ -5,6 +5,9 @@ using System.Windows.Input;
 
 namespace WpfBingo;
 
+/// <summary>
+/// ビンゴ抽選機の状態と UI 更新を司るメイン ViewModel。
+/// </summary>
 public class BingoViewModel : INotifyPropertyChanged
 {
     private readonly Random _random = new();
@@ -16,6 +19,9 @@ public class BingoViewModel : INotifyPropertyChanged
     private double _numberCellSize = 40;
     private double _numberFontSize = 16;
 
+    /// <summary>
+    /// ViewModel を初期化し、コマンドと番号リストをセットアップします。
+    /// </summary>
     public BingoViewModel()
     {
         DrawnNumbers = new ObservableCollection<int>();
@@ -28,33 +34,48 @@ public class BingoViewModel : INotifyPropertyChanged
         Reset();
     }
 
+    /// <summary>抽選済み番号の履歴（新しい順）。</summary>
     public ObservableCollection<int> DrawnNumbers { get; }
+    /// <summary>1～75 の全ビンゴ番号。</summary>
     public ObservableCollection<BingoNumber> AllNumbers { get; }
+    /// <summary>10刻みのグループ表示用コレクション。</summary>
     public ObservableCollection<BingoNumberGroup> GroupedNumbers { get; }
+    /// <summary>BINGO 列（1-15,16-30...）の静的コレクション。</summary>
     public ObservableCollection<BingoNumberColumn> Columns { get; }
+    /// <summary>画面幅に応じて行数が変わる動的列。</summary>
     public ObservableCollection<BingoNumberColumn> DynamicColumns { get; } = new();
 
+    /// <summary>現在表示されている番号文字列。</summary>
     public string CurrentNumberDisplay
     {
         get => _currentNumberDisplay;
         set { _currentNumberDisplay = value; OnPropertyChanged(); }
     }
 
+    /// <summary>直近の抽選番号。未抽選時は null。</summary>
     public int? CurrentNumber
     {
         get => _currentNumber;
         set { _currentNumber = value; CurrentNumberDisplay = value?.ToString() ?? "?"; OnPropertyChanged(); }
     }
 
+    /// <summary>中央表示用番号のフォントサイズ。</summary>
     public double CurrentNumberFontSize
     {
         get => _currentNumberFontSize;
         set { if (Math.Abs(_currentNumberFontSize - value) < 0.1) return; _currentNumberFontSize = value; OnPropertyChanged(); }
     }
 
+    /// <summary>番号セルの一辺サイズ。</summary>
     public double NumberCellSize { get => _numberCellSize; private set { if (Math.Abs(_numberCellSize - value) < 0.5) return; _numberCellSize = value; OnPropertyChanged(); } }
+    /// <summary>セル内のフォントサイズ。</summary>
     public double NumberFontSize { get => _numberFontSize; private set { if (Math.Abs(_numberFontSize - value) < 0.5) return; _numberFontSize = value; OnPropertyChanged(); } }
 
+    /// <summary>
+    /// 中央番号エリアのサイズに合わせてフォントサイズを調整します。
+    /// </summary>
+    /// <param name="width">領域の幅。</param>
+    /// <param name="height">領域の高さ。</param>
     public void AdjustCurrentNumberFontSize(double width, double height)
     {
         var minSide = Math.Min(width, height);
@@ -62,11 +83,16 @@ public class BingoViewModel : INotifyPropertyChanged
         CurrentNumberFontSize = newSize;
     }
 
+    /// <summary>番号を一つ抽選するためのコマンド。</summary>
     public ICommand DrawNumberCommand { get; }
+    /// <summary>状態を初期化するコマンド。</summary>
     public ICommand ResetCommand { get; }
 
     private bool CanDrawNumber() => _availableNumbers.Count > 0;
 
+    /// <summary>
+    /// 利用可能な番号からランダムに一つ選び、状態を更新します。
+    /// </summary>
     private void DrawNumber()
     {
         if (_availableNumbers.Count == 0) return;
@@ -79,6 +105,11 @@ public class BingoViewModel : INotifyPropertyChanged
         ((RelayCommand)DrawNumberCommand).RaiseCanExecuteChanged();
     }
 
+    /// <summary>
+    /// ウィンドウサイズに合わせて行数やセルサイズを再計算します。
+    /// </summary>
+    /// <param name="width">利用可能幅。</param>
+    /// <param name="height">利用可能高さ。</param>
     public void UpdateLayout(double width, double height)
     {
         double horizontalMargin = 80; // approximate outer margins
@@ -109,6 +140,9 @@ public class BingoViewModel : INotifyPropertyChanged
         NumberFontSize = Math.Clamp(chosen.cellSize * 0.42, 12, 48);
     }
 
+    /// <summary>
+    /// 行数設定に応じて動的列コレクションを再構築します。
+    /// </summary>
     private void RebuildDynamicColumns()
     {
         DynamicColumns.Clear();
@@ -129,6 +163,9 @@ public class BingoViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(DynamicColumns));
     }
 
+    /// <summary>
+    /// 全番号・履歴・UI 状態を初期化し、新しいゲームを開始します。
+    /// </summary>
     private void Reset()
     {
         _availableNumbers.Clear();
@@ -182,43 +219,79 @@ public class BingoViewModel : INotifyPropertyChanged
         UpdateLayout(1000, 800); // initial sizing
     }
 
+    /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
+    /// <summary>
+    /// プロパティ変更イベントを発火します。
+    /// </summary>
+    /// <param name="propertyName">変更されたプロパティ名。</param>
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
 
+/// <summary>
+/// 10刻みの番号グループを表します。
+/// </summary>
 public class BingoNumberGroup
 {
+    /// <summary>グループを識別するラベル。</summary>
     public string Label { get; set; } = string.Empty;
+    /// <summary>所属する番号リスト。</summary>
     public ObservableCollection<BingoNumber> Numbers { get; } = new();
 }
 
+/// <summary>
+/// 列単位で番号を保持するモデル。
+/// </summary>
 public class BingoNumberColumn
 {
+    /// <summary>列のラベル (範囲や BINGO 文字)。</summary>
     public string Label { get; set; } = string.Empty;
+    /// <summary>列に含まれる番号。</summary>
     public ObservableCollection<BingoNumber> Numbers { get; } = new();
 }
 
+/// <summary>
+/// 単一のビンゴ番号と抽選状態を表すモデル。
+/// </summary>
 public class BingoNumber : INotifyPropertyChanged
 {
     private bool _isDrawn;
+    /// <summary>番号の数値。</summary>
     public int Value { get; }
+    /// <summary>抽選済みかどうか。</summary>
     public bool IsDrawn
     {
         get => _isDrawn;
         set { if (_isDrawn == value) return; _isDrawn = value; OnPropertyChanged(); }
     }
+    /// <summary>
+    /// 指定値でインスタンスを生成します。
+    /// </summary>
+    /// <param name="value">ビンゴ番号。</param>
     public BingoNumber(int value) => Value = value;
+    /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
+    /// <summary>プロパティ変更通知を送信します。</summary>
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
 
+/// <summary>
+/// シンプルな <see cref="ICommand"/> 実装。
+/// </summary>
 public class RelayCommand : ICommand
 {
     private readonly Action _execute;
     private readonly Func<bool>? _canExecute;
+    /// <summary>
+    /// 実行デリゲートと条件デリゲートでコマンドを初期化します。
+    /// </summary>
     public RelayCommand(Action execute, Func<bool>? canExecute = null) { _execute = execute ?? throw new ArgumentNullException(nameof(execute)); _canExecute = canExecute; }
+    /// <inheritdoc />
     public bool CanExecute(object? parameter) => _canExecute == null || _canExecute();
+    /// <inheritdoc />
     public void Execute(object? parameter) => _execute();
+    /// <inheritdoc />
     public event EventHandler? CanExecuteChanged;
+    /// <summary>CanExecute の変更を通知します。</summary>
     public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
 }

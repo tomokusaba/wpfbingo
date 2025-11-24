@@ -1,21 +1,21 @@
 # WPF Bingo - ビンゴ抽選機
 
-A fun and interactive bingo number drawing application built with WPF (Windows Presentation Foundation).
+WPF（Windows Presentation Foundation）で構築した、楽しく直感的に遊べるビンゴ抽選アプリです。
 
-## Features
+## 機能
 
-- **Random Number Drawing**: Draw numbers from 1 to 75 in random order
-- **Fun Animations**: Newly drawn numbers are displayed with engaging scale and fade animations
-- **Clear History Display**: View all previously drawn numbers in an easy-to-read format with animated number balls
-- **Reset Functionality**: Start a new game at any time
-- **Bilingual UI**: Japanese and English labels for better accessibility
+- **ランダム抽選**: 1～75の番号を重複なしでランダム抽選します。
+- **リッチなアニメーション**: 抽選された番号は拡大・フェードなどの演出付きで表示されます。
+- **履歴の可視化**: これまでに出た番号をアニメーション付きのボールで確認できます。
+- **リセット機能**: いつでもゲームをリセットして再スタートできます。
+- **バイリンガルUI**: 日本語と英語のラベルで誰でも使いやすい設計です。
 
-## Requirements
+## 必要環境
 
-- .NET 10.0 or later
-- Windows operating system
+- .NET 10.0 以降
+- Windows オペレーティングシステム
 
-## How to Build
+## ビルド方法
 
 ```bash
 cd WpfBingo
@@ -23,30 +23,30 @@ dotnet restore
 dotnet build
 ```
 
-## How to Run
+## 実行方法
 
 ```bash
 cd WpfBingo
 dotnet run
 ```
 
-Or simply open the solution in Visual Studio and press F5.
+または Visual Studio でソリューションを開き、F5キーで実行します。
 
-## How to Use
+## 使い方
 
-1. Click the "抽選 / Draw" button to draw a new random number
-2. The number will be displayed with an animation in the center
-3. All drawn numbers are shown in the history section at the bottom
-4. Click "リセット / Reset" to start a new game
+1. 「抽選 / Draw」ボタンをクリックして新しい番号を出します。
+2. 抽選番号は中央エリアでアニメーション表示されます。
+3. これまでの番号は画面下部の履歴セクションに並びます。
+4. 「リセット / Reset」ボタンで新しいゲームを開始できます。
 
-## Technical Details
+## 技術情報
 
-- Built with .NET 10.0 and WPF
-- Follows MVVM (Model-View-ViewModel) architecture
-- Uses data binding for reactive UI updates
-- Implements custom animations using WPF Storyboards
-- Material Design inspired color scheme
+- .NET 10.0 + WPFで実装
+- MVVM（Model-View-ViewModel）アーキテクチャを採用
+- データバインディングによるリアクティブなUI更新
+- WPF Storyboardを用いたカスタムアニメーション
+- Material Design風のカラースキーム
 
-## License
+## ライセンス
 
-This project is open source and available under the MIT License.
+このプロジェクトはMIT Licenseの下で公開されています。

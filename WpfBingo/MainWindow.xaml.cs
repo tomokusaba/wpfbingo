@@ -7,6 +7,9 @@ using System.Windows.Controls; // Added for Canvas
 
 namespace WpfBingo;
 
+/// <summary>
+/// UI ルートを司り、抽選時の各種アニメーションとコンフェッティを制御するメインウィンドウです。
+/// </summary>
 public partial class MainWindow : Window
 {
     private readonly BingoViewModel _viewModel;
@@ -15,6 +18,9 @@ public partial class MainWindow : Window
     private readonly Dictionary<string, ConfettiProfile> _confettiProfiles;
     private int _lastBackgroundPatternIndex = -1;
 
+    /// <summary>
+    /// 依存リソースの初期化と ViewModel とのバインドを行います。
+    /// </summary>
     public MainWindow()
     {
         InitializeComponent();
@@ -157,6 +163,11 @@ public partial class MainWindow : Window
         };
     }
 
+    /// <summary>
+    /// 背景パターンキーに紐づくコンフェッティ設定を解決します。
+    /// </summary>
+    /// <param name="backgroundKey">背景アニメーションのリソースキー。</param>
+    /// <returns>一致する <see cref="ConfettiProfile"/>。見つからない場合は既定値。</returns>
     private ConfettiProfile GetConfettiProfile(string backgroundKey)
     {
         if (!string.IsNullOrEmpty(backgroundKey) && _confettiProfiles.TryGetValue(backgroundKey, out var profile))
@@ -167,6 +178,9 @@ public partial class MainWindow : Window
         return _defaultConfettiProfile;
     }
 
+    /// <summary>
+    /// 前回と異なる背景アニメーションキーをランダムに選択します。
+    /// </summary>
     private string GetNextBackgroundPatternKey()
     {
         if (_backgroundPatterns.Length == 0)
@@ -187,6 +201,9 @@ public partial class MainWindow : Window
         return _backgroundPatterns[index];
     }
 
+    /// <summary>
+    /// 背景演出要素を非表示状態に戻し、再生準備を行います。
+    /// </summary>
     private void ResetBackgroundEffects()
     {
         // Ensure elements start hidden before animation
@@ -238,6 +255,9 @@ public partial class MainWindow : Window
         "BackgroundAnimationPattern5"
     };
 
+    /// <summary>
+    /// オーバーレイアニメーション終了時に可視状態とコンフェッティをリセットします。
+    /// </summary>
     private void OverlayStoryboard_Completed(object? sender, EventArgs e)
     {
         OverlayGrid.Visibility = Visibility.Collapsed;
@@ -245,6 +265,10 @@ public partial class MainWindow : Window
         if (sender is Storyboard sb) sb.Completed -= OverlayStoryboard_Completed;
     }
 
+    /// <summary>
+    /// 指定プロファイルに従ったコンフェッティを生成・落下させます。
+    /// </summary>
+    /// <param name="profile">描画に使用するプロファイル。</param>
     private void SpawnConfetti(ConfettiProfile profile)
     {
         ConfettiCanvas.Children.Clear();
@@ -338,6 +362,12 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// プロファイルで指定された形状から対応する <see cref="Shape"/> を生成します。
+    /// </summary>
+    /// <param name="shapeType">生成する図形種別。</param>
+    /// <param name="size">基準となるサイズ。</param>
+    /// <returns>描画する <see cref="Shape"/>。</returns>
     private Shape CreateConfettiShape(ConfettiShape shapeType, double size)
     {
         Shape shape = shapeType switch
@@ -366,11 +396,15 @@ public partial class MainWindow : Window
         return shape;
     }
 
+    /// <summary>
+    /// 中央表示枠のサイズ変化に合わせてフォントサイズを再調整します。
+    /// </summary>
     private void CurrentNumberBorder_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         _viewModel.AdjustCurrentNumberFontSize(e.NewSize.Width, e.NewSize.Height);
     }
 
+    /// <inheritdoc />
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
     {
         base.OnRenderSizeChanged(sizeInfo);
@@ -378,6 +412,9 @@ public partial class MainWindow : Window
     }
 }
 
+/// <summary>
+/// コンフェッティで使用する図形種別です。
+/// </summary>
 internal enum ConfettiShape
 {
     Rectangle,
@@ -387,22 +424,41 @@ internal enum ConfettiShape
     Bar
 }
 
+/// <summary>
+/// コンフェッティ挙動を決める各種パラメーターを保持します。
+/// </summary>
 internal sealed class ConfettiProfile
 {
+    /// <summary>生成するパーティクル数。</summary>
     public int Count { get; init; }
+    /// <summary>サイズの最小値。</summary>
     public double SizeMin { get; init; }
+    /// <summary>サイズの最大値。</summary>
     public double SizeMax { get; init; }
+    /// <summary>落下に掛かる時間の下限（秒）。</summary>
     public double DurationMin { get; init; }
+    /// <summary>落下に掛かる時間の上限（秒）。</summary>
     public double DurationMax { get; init; }
+    /// <summary>開始遅延の最大値（秒）。</summary>
     public double DelayMax { get; init; }
+    /// <summary>左右への振れ幅。</summary>
     public double HorizontalDrift { get; init; }
+    /// <summary>画面下に抜ける距離。</summary>
     public double VerticalOvershoot { get; init; }
+    /// <summary>生成位置の最小オフセット。</summary>
     public double StartOffsetMin { get; init; }
+    /// <summary>生成位置の最大オフセット。</summary>
     public double StartOffsetMax { get; init; }
+    /// <summary>不透明度の最小値。</summary>
     public double OpacityMin { get; init; }
+    /// <summary>不透明度の最大値。</summary>
     public double OpacityMax { get; init; }
+    /// <summary>回転量の最小値。</summary>
     public double RotationMin { get; init; }
+    /// <summary>回転量の最大値。</summary>
     public double RotationMax { get; init; }
+    /// <summary>使用する色パレット。</summary>
     public string[] Colors { get; init; } = Array.Empty<string>();
+    /// <summary>使用する図形の種類リスト。</summary>
     public ConfettiShape[] Shapes { get; init; } = Array.Empty<ConfettiShape>();
 }
