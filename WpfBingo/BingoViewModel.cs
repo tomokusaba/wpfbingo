@@ -24,10 +24,10 @@ public class BingoViewModel : INotifyPropertyChanged
     /// </summary>
     public BingoViewModel()
     {
-        DrawnNumbers = new ObservableCollection<int>();
-        AllNumbers = new ObservableCollection<BingoNumber>();
-        GroupedNumbers = new ObservableCollection<BingoNumberGroup>();
-        Columns = new ObservableCollection<BingoNumberColumn>();
+        DrawnNumbers = [];
+        AllNumbers = [];
+        GroupedNumbers = [];
+        Columns = [];
         DrawNumberCommand = new RelayCommand(DrawNumber, CanDrawNumber);
         ResetCommand = new RelayCommand(Reset);
         
@@ -43,7 +43,7 @@ public class BingoViewModel : INotifyPropertyChanged
     /// <summary>BINGO 列（1-15,16-30...）の静的コレクション。</summary>
     public ObservableCollection<BingoNumberColumn> Columns { get; }
     /// <summary>画面幅に応じて行数が変わる動的列。</summary>
-    public ObservableCollection<BingoNumberColumn> DynamicColumns { get; } = new();
+    public ObservableCollection<BingoNumberColumn> DynamicColumns { get; } = [];
 
     /// <summary>現在表示されている番号文字列。</summary>
     public string CurrentNumberDisplay
@@ -236,7 +236,7 @@ public class BingoNumberGroup
     /// <summary>グループを識別するラベル。</summary>
     public string Label { get; set; } = string.Empty;
     /// <summary>所属する番号リスト。</summary>
-    public ObservableCollection<BingoNumber> Numbers { get; } = new();
+    public ObservableCollection<BingoNumber> Numbers { get; } = [];
 }
 
 /// <summary>
@@ -247,28 +247,24 @@ public class BingoNumberColumn
     /// <summary>列のラベル (範囲や BINGO 文字)。</summary>
     public string Label { get; set; } = string.Empty;
     /// <summary>列に含まれる番号。</summary>
-    public ObservableCollection<BingoNumber> Numbers { get; } = new();
+    public ObservableCollection<BingoNumber> Numbers { get; } = [];
 }
 
 /// <summary>
 /// 単一のビンゴ番号と抽選状態を表すモデル。
 /// </summary>
-public class BingoNumber : INotifyPropertyChanged
+/// <param name="value">ビンゴ番号。</param>
+public class BingoNumber(int value) : INotifyPropertyChanged
 {
     private bool _isDrawn;
     /// <summary>番号の数値。</summary>
-    public int Value { get; }
+    public int Value { get; } = value;
     /// <summary>抽選済みかどうか。</summary>
     public bool IsDrawn
     {
         get => _isDrawn;
         set { if (_isDrawn == value) return; _isDrawn = value; OnPropertyChanged(); }
     }
-    /// <summary>
-    /// 指定値でインスタンスを生成します。
-    /// </summary>
-    /// <param name="value">ビンゴ番号。</param>
-    public BingoNumber(int value) => Value = value;
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
     /// <summary>プロパティ変更通知を送信します。</summary>

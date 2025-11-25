@@ -19,12 +19,13 @@ public partial class MainWindow : Window
     private int _lastBackgroundPatternIndex = -1;
 
     /// <summary>
-    /// 依存リソースの初期化と ViewModel とのバインドを行います。
+    /// DI コンテナから ViewModel を受け取り、依存リソースの初期化とバインドを行います。
     /// </summary>
-    public MainWindow()
+    /// <param name="viewModel">DI によって注入された ViewModel。</param>
+    public MainWindow(BingoViewModel viewModel)
     {
         InitializeComponent();
-        _viewModel = new BingoViewModel();
+        _viewModel = viewModel;
         DataContext = _viewModel;
 
         _defaultConfettiProfile = new ConfettiProfile
@@ -43,8 +44,8 @@ public partial class MainWindow : Window
             OpacityMax = 1.0,
             RotationMin = 180,
             RotationMax = 540,
-            Colors = new[] { "#FFEB3B", "#FF9800", "#FF7043", "#FFF176" },
-            Shapes = new[] { ConfettiShape.Rectangle, ConfettiShape.Circle, ConfettiShape.Triangle }
+            Colors = ["#FFEB3B", "#FF9800", "#FF7043", "#FFF176"],
+            Shapes = [ConfettiShape.Rectangle, ConfettiShape.Circle, ConfettiShape.Triangle]
         };
 
         _confettiProfiles = new Dictionary<string, ConfettiProfile>
@@ -66,8 +67,8 @@ public partial class MainWindow : Window
                 OpacityMax = 0.95,
                 RotationMin = 120,
                 RotationMax = 420,
-                Colors = new[] { "#E1F5FE", "#B3E5FC", "#4FC3F7", "#80DEEA", "#E0F7FA" },
-                Shapes = new[] { ConfettiShape.Diamond, ConfettiShape.Circle, ConfettiShape.Bar }
+                Colors = ["#E1F5FE", "#B3E5FC", "#4FC3F7", "#80DEEA", "#E0F7FA"],
+                Shapes = [ConfettiShape.Diamond, ConfettiShape.Circle, ConfettiShape.Bar]
             },
             ["BackgroundAnimationPattern3"] = new ConfettiProfile
             {
@@ -85,8 +86,8 @@ public partial class MainWindow : Window
                 OpacityMax = 1.0,
                 RotationMin = 90,
                 RotationMax = 360,
-                Colors = new[] { "#F8BBD0", "#FFCDD2", "#F48FB1", "#E1BEE7" },
-                Shapes = new[] { ConfettiShape.Bar, ConfettiShape.Rectangle, ConfettiShape.Circle }
+                Colors = ["#F8BBD0", "#FFCDD2", "#F48FB1", "#E1BEE7"],
+                Shapes = [ConfettiShape.Bar, ConfettiShape.Rectangle, ConfettiShape.Circle]
             },
             ["BackgroundAnimationPattern4"] = new ConfettiProfile
             {
@@ -104,8 +105,8 @@ public partial class MainWindow : Window
                 OpacityMax = 1.0,
                 RotationMin = 240,
                 RotationMax = 720,
-                Colors = new[] { "#FFF8E1", "#FFE082", "#FFD54F", "#FFECB3" },
-                Shapes = new[] { ConfettiShape.Diamond, ConfettiShape.Triangle, ConfettiShape.Bar }
+                Colors = ["#FFF8E1", "#FFE082", "#FFD54F", "#FFECB3"],
+                Shapes = [ConfettiShape.Diamond, ConfettiShape.Triangle, ConfettiShape.Bar]
             },
             ["BackgroundAnimationPattern5"] = new ConfettiProfile
             {
@@ -123,8 +124,8 @@ public partial class MainWindow : Window
                 OpacityMax = 0.98,
                 RotationMin = 150,
                 RotationMax = 540,
-                Colors = new[] { "#69F0AE", "#00E5FF", "#FF80AB", "#F4FF81", "#B388FF" },
-                Shapes = new[] { ConfettiShape.Circle, ConfettiShape.Rectangle, ConfettiShape.Triangle, ConfettiShape.Diamond }
+                Colors = ["#69F0AE", "#00E5FF", "#FF80AB", "#F4FF81", "#B388FF"],
+                Shapes = [ConfettiShape.Circle, ConfettiShape.Rectangle, ConfettiShape.Triangle, ConfettiShape.Diamond]
             }
         };
 
@@ -168,15 +169,10 @@ public partial class MainWindow : Window
     /// </summary>
     /// <param name="backgroundKey">背景アニメーションのリソースキー。</param>
     /// <returns>一致する <see cref="ConfettiProfile"/>。見つからない場合は既定値。</returns>
-    private ConfettiProfile GetConfettiProfile(string backgroundKey)
-    {
-        if (!string.IsNullOrEmpty(backgroundKey) && _confettiProfiles.TryGetValue(backgroundKey, out var profile))
-        {
-            return profile;
-        }
-
-        return _defaultConfettiProfile;
-    }
+    private ConfettiProfile GetConfettiProfile(string backgroundKey) =>
+        !string.IsNullOrEmpty(backgroundKey) && _confettiProfiles.TryGetValue(backgroundKey, out var profile)
+            ? profile
+            : _defaultConfettiProfile;
 
     /// <summary>
     /// 前回と異なる背景アニメーションキーをランダムに選択します。
@@ -229,31 +225,31 @@ public partial class MainWindow : Window
     }
 
     private readonly string[] _overlayPatterns =
-    {
+    [
         "OverlayAnimationPattern1",
         "OverlayAnimationPattern2",
         "OverlayAnimationPattern3",
         "OverlayAnimationPattern4",
         "OverlayAnimationPattern5"
-    };
+    ];
 
     private readonly string[] _pulsePatterns =
-    {
+    [
         "NumberPulsePattern1",
         "NumberPulsePattern2",
         "NumberPulsePattern3",
         "NumberPulsePattern4",
         "NumberPulsePattern5"
-    };
+    ];
 
     private readonly string[] _backgroundPatterns =
-    {
+    [
         "BackgroundAnimationPattern1",
         "BackgroundAnimationPattern2",
         "BackgroundAnimationPattern3",
         "BackgroundAnimationPattern4",
         "BackgroundAnimationPattern5"
-    };
+    ];
 
     /// <summary>
     /// オーバーレイアニメーション終了時に可視状態とコンフェッティをリセットします。
@@ -368,7 +364,7 @@ public partial class MainWindow : Window
     /// <param name="shapeType">生成する図形種別。</param>
     /// <param name="size">基準となるサイズ。</param>
     /// <returns>描画する <see cref="Shape"/>。</returns>
-    private Shape CreateConfettiShape(ConfettiShape shapeType, double size)
+    private static Shape CreateConfettiShape(ConfettiShape shapeType, double size)
     {
         Shape shape = shapeType switch
         {
@@ -376,14 +372,14 @@ public partial class MainWindow : Window
             ConfettiShape.Circle => new Ellipse { Width = size, Height = size },
             ConfettiShape.Triangle => new Polygon
             {
-                Points = new PointCollection { new Point(0.5, 0), new Point(1, 1), new Point(0, 1) },
+                Points = [new(0.5, 0), new(1, 1), new(0, 1)],
                 Stretch = Stretch.Fill,
                 Width = size,
                 Height = size
             },
             ConfettiShape.Diamond => new Polygon
             {
-                Points = new PointCollection { new Point(0.5, 0), new Point(1, 0.5), new Point(0.5, 1), new Point(0, 0.5) },
+                Points = [new(0.5, 0), new(1, 0.5), new(0.5, 1), new(0, 0.5)],
                 Stretch = Stretch.Fill,
                 Width = size,
                 Height = size
@@ -399,10 +395,8 @@ public partial class MainWindow : Window
     /// <summary>
     /// 中央表示枠のサイズ変化に合わせてフォントサイズを再調整します。
     /// </summary>
-    private void CurrentNumberBorder_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
+    private void CurrentNumberBorder_SizeChanged(object sender, SizeChangedEventArgs e) =>
         _viewModel.AdjustCurrentNumberFontSize(e.NewSize.Width, e.NewSize.Height);
-    }
 
     /// <inheritdoc />
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -458,7 +452,7 @@ internal sealed class ConfettiProfile
     /// <summary>回転量の最大値。</summary>
     public double RotationMax { get; init; }
     /// <summary>使用する色パレット。</summary>
-    public string[] Colors { get; init; } = Array.Empty<string>();
+    public string[] Colors { get; init; } = [];
     /// <summary>使用する図形の種類リスト。</summary>
-    public ConfettiShape[] Shapes { get; init; } = Array.Empty<ConfettiShape>();
+    public ConfettiShape[] Shapes { get; init; } = [];
 }
