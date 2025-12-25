@@ -246,7 +246,7 @@
             <Border x:Name="CurrentNumberBorder" Grid.Row="1" Background="#FF9800" CornerRadius="24" Padding="20" MinWidth="160" MinHeight="160" MaxWidth="360" MaxHeight="360" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" SizeChanged="CurrentNumberBorder_SizeChanged">
                 <Border.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Border.RenderTransform>
                 <Border.Effect><DropShadowEffect Color="#000000" Opacity="0.35" BlurRadius="25" ShadowDepth="6"/></Border.Effect>
-                <TextBlock Text="{Binding CurrentNumberDisplay}" FontSize="{Binding CurrentNumberFontSize}" FontWeight="Black" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                <TextBlock x:Name="CurrentNumberText" Text="{Binding CurrentNumberDisplay}" FontSize="{Binding CurrentNumberFontSize}" FontWeight="Black" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
             </Border>
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,22,0,0">
                 <Button Command="{Binding DrawNumberCommand}" Content="抽選" FontSize="18" FontWeight="Bold" Padding="30,15" Margin="10,0" Background="#4CAF50" Foreground="White" BorderThickness="0"/>
@@ -281,6 +281,48 @@
                 </ItemsControl>
             </Viewbox>
         </Border>
+        <!-- Roulette Overlay -->
+        <Grid x:Name="RouletteOverlay" Grid.RowSpan="3" Background="#E0FF9800" Visibility="Collapsed" IsHitTestVisible="False" Panel.ZIndex="90">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- 中央のマスク（現在の番号が見える窓） -->
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" 
+                    Background="#FF9800" CornerRadius="40" 
+                    Width="500" Height="320" ClipToBounds="True">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" Opacity="0.5" BlurRadius="40" ShadowDepth="10"/>
+                </Border.Effect>
+                <Canvas x:Name="RouletteCanvas" ClipToBounds="True">
+                    <StackPanel x:Name="RouletteStack" Orientation="Vertical" HorizontalAlignment="Center">
+                        <!-- 動的に番号を追加 -->
+                    </StackPanel>
+                </Canvas>
+            </Border>
+            <!-- 上下のグラデーションオーバーレイ（スロット機風） -->
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Width="500" Height="320" IsHitTestVisible="False">
+                <Grid>
+                    <Border VerticalAlignment="Top" Height="80">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#FFFF9800" Offset="0"/>
+                                <GradientStop Color="#00FF9800" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    <Border VerticalAlignment="Bottom" Height="80">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                                <GradientStop Color="#FFFF9800" Offset="0"/>
+                                <GradientStop Color="#00FF9800" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    <!-- 中央のライン（停止位置の目印） -->
+                    <Border VerticalAlignment="Center" Height="6" Background="#FFFFEB3B" Opacity="0.8"/>
+                </Grid>
+            </Border>
+        </Grid>
         <!-- Overlay -->
         <Grid x:Name="OverlayGrid" Grid.RowSpan="3" Background="#80000000" Visibility="Collapsed" Opacity="0" IsHitTestVisible="False" Panel.ZIndex="100">
             <Canvas x:Name="ConfettiCanvas"/>

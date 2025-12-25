@@ -16,6 +16,8 @@ public partial class MainWindow : Window
     private readonly ConfettiProfile _defaultConfettiProfile;
     private readonly Dictionary<string, ConfettiProfile> _confettiProfiles;
     private int _lastBackgroundPatternIndex = -1;
+    private int _rouletteTargetNumber;
+    private bool _isRouletteRunning;
 
     /// <summary>
     /// DI コンテナから ViewModel を受け取り、依存リソースの初期化とバインドを行います。
@@ -130,37 +132,153 @@ public partial class MainWindow : Window
 
         _viewModel.PropertyChanged += (s, e) =>
         {
-            if (e.PropertyName == nameof(BingoViewModel.CurrentNumber) && _viewModel.CurrentNumber.HasValue)
+            if (e.PropertyName == nameof(BingoViewModel.IsDrawing) && _viewModel.IsDrawing)
             {
-                var backgroundKey = GetNextBackgroundPatternKey();
-                var confettiProfile = GetConfettiProfile(backgroundKey);
-
-                OverlayNumberText.Text = _viewModel.CurrentNumberDisplay;
-                OverlayGrid.Visibility = Visibility.Visible;
-                SpawnConfetti(confettiProfile);
-
-                // Select random patterns
-                var overlayKey = _overlayPatterns[_rand.Next(_overlayPatterns.Length)];
-                var pulseKey = _pulsePatterns[_rand.Next(_pulsePatterns.Length)];
-
-                // Start overlay animation
-                var overlayStoryboard = (Storyboard)FindResource(overlayKey);
-                overlayStoryboard.Completed += OverlayStoryboard_Completed;
-                overlayStoryboard.Begin();
-
-                // Start pulse animation
-                var pulseStoryboard = (Storyboard)FindResource(pulseKey);
-                pulseStoryboard.Begin();
-
-                // Prepare background effect visibility resets
-                ResetBackgroundEffects();
-                if (!string.IsNullOrEmpty(backgroundKey))
-                {
-                    var bgStoryboard = (Storyboard)FindResource(backgroundKey);
-                    bgStoryboard.Begin();
-                }
+                // ルーレットアニメーション開始
+                StartRouletteAnimation();
+            }
+            else if (e.PropertyName == nameof(BingoViewModel.CurrentNumber) && _viewModel.CurrentNumber.HasValue && !_isRouletteRunning)
+            {
+                // ルーレット完了後の演出
+                PlayDrawCompletedAnimation();
             }
         };
+    }
+
+    /// <summary>
+    /// 上から下に流れるルーレットアニメーションを開始します（全画面オーバーレイ）。
+    /// </summary>
+    private void StartRouletteAnimation()
+    {
+        _isRouletteRunning = true;
+        var availableNumbers = _viewModel.GetAvailableNumbersForRoulette();
+        if (availableNumbers.Length == 0)
+        {
+            _isRouletteRunning = false;
+            return;
+        }
+
+        // 最終的に止まる番号を先に決定
+        _rouletteTargetNumber = availableNumbers[_rand.Next(availableNumbers.Length)];
+
+        // ルーレット用の番号リストを作成（ランダムな順序で表示し、最後にターゲット番号で止まる）
+        var rouletteNumbers = new List<int>();
+        
+        // ランダムな番号を追加（スクロール用）- 多めに追加してゆっくり感を出す
+        int scrollCount = 50 + _rand.Next(30); // 50〜80個の番号をスクロール
+        for (int i = 0; i < scrollCount; i++)
+        {
+            rouletteNumbers.Add(availableNumbers[_rand.Next(availableNumbers.Length)]);
+        }
+        
+        // 最後にターゲット番号を追加
+        rouletteNumbers.Add(_rouletteTargetNumber);
+
+        // 全画面オーバーレイを表示
+        RouletteOverlay.Visibility = Visibility.Visible;
+        RouletteStack.Children.Clear();
+
+        // 大きなフォントサイズで表示
+        double fontSize = 180;
+        double itemHeight = fontSize * 1.4; // 行の高さ
+
+        // 番号のTextBlockを作成
+        foreach (var num in rouletteNumbers)
+        {
+            var textBlock = new TextBlock
+            {
+                Text = num.ToString(),
+                FontSize = fontSize,
+                FontWeight = FontWeights.Black,
+                Foreground = Brushes.White,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Height = itemHeight,
+                Width = 500,
+                TextAlignment = TextAlignment.Center
+            };
+            RouletteStack.Children.Add(textBlock);
+        }
+
+        // Canvasのサイズを設定（オーバーレイのサイズに合わせる）
+        RouletteCanvas.Width = 500;
+        RouletteCanvas.Height = 320;
+
+        // スタック初期位置を設定
+        Canvas.SetLeft(RouletteStack, 0);
+        Canvas.SetTop(RouletteStack, 0);
+        RouletteStack.Width = 500;
+
+        // アニメーションの設定
+        double totalHeight = itemHeight * rouletteNumbers.Count;
+        double centerOffset = (320 - itemHeight) / 2; // 中央に配置するためのオフセット
+        double targetY = -(totalHeight - itemHeight - centerOffset);
+
+        // ゆっくり減速しながら止まるアニメーション（5秒間）
+        var scrollAnimation = new DoubleAnimation
+        {
+            From = centerOffset,
+            To = targetY,
+            Duration = TimeSpan.FromSeconds(5.0),
+            EasingFunction = new QuinticEase { EasingMode = EasingMode.EaseOut }
+        };
+
+        scrollAnimation.Completed += (s, e) => OnRouletteCompleted();
+
+        RouletteStack.BeginAnimation(Canvas.TopProperty, scrollAnimation);
+    }
+
+    /// <summary>
+    /// ルーレットアニメーション完了時の処理。
+    /// </summary>
+    private void OnRouletteCompleted()
+    {
+        _isRouletteRunning = false;
+        
+        // オーバーレイを非表示
+        RouletteOverlay.Visibility = Visibility.Collapsed;
+
+        // 番号を確定
+        _viewModel.ConfirmDrawnNumber(_rouletteTargetNumber);
+        
+        // 演出再生
+        PlayDrawCompletedAnimation();
+    }
+
+    /// <summary>
+    /// 抽選完了後の演出（コンフェッティ、オーバーレイなど）を再生します。
+    /// </summary>
+    private void PlayDrawCompletedAnimation()
+    {
+        if (!_viewModel.CurrentNumber.HasValue) return;
+        
+        var backgroundKey = GetNextBackgroundPatternKey();
+        var confettiProfile = GetConfettiProfile(backgroundKey);
+
+        OverlayNumberText.Text = _viewModel.CurrentNumberDisplay;
+        OverlayGrid.Visibility = Visibility.Visible;
+        SpawnConfetti(confettiProfile);
+
+        // Select random patterns
+        var overlayKey = _overlayPatterns[_rand.Next(_overlayPatterns.Length)];
+        var pulseKey = _pulsePatterns[_rand.Next(_pulsePatterns.Length)];
+
+        // Start overlay animation
+        var overlayStoryboard = (Storyboard)FindResource(overlayKey);
+        overlayStoryboard.Completed += OverlayStoryboard_Completed;
+        overlayStoryboard.Begin();
+
+        // Start pulse animation
+        var pulseStoryboard = (Storyboard)FindResource(pulseKey);
+        pulseStoryboard.Begin();
+
+        // Prepare background effect visibility resets
+        ResetBackgroundEffects();
+        if (!string.IsNullOrEmpty(backgroundKey))
+        {
+            var bgStoryboard = (Storyboard)FindResource(backgroundKey);
+            bgStoryboard.Begin();
+        }
     }
 
     /// <summary>
