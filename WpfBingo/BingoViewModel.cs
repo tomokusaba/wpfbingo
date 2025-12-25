@@ -88,21 +88,67 @@ public class BingoViewModel : INotifyPropertyChanged
     /// <summary>状態を初期化するコマンド。</summary>
     public ICommand ResetCommand { get; }
 
-    private bool CanDrawNumber() => _availableNumbers.Count > 0;
+    private bool CanDrawNumber() => _availableNumbers.Count > 0 && !_isDrawing;
+
+    private bool _isDrawing;
+    
+    /// <summary>
+    /// 抽選中かどうかを示すフラグ。
+    /// </summary>
+    public bool IsDrawing
+    {
+        get => _isDrawing;
+        set { if (_isDrawing == value) return; _isDrawing = value; OnPropertyChanged(); ((RelayCommand)DrawNumberCommand).RaiseCanExecuteChanged(); }
+    }
+
+    /// <summary>
+    /// ルーレット用に利用可能な番号の配列を取得します。
+    /// </summary>
+    /// <returns>シャッフルされた利用可能番号の配列。</returns>
+    public int[] GetAvailableNumbersForRoulette()
+    {
+        var numbers = _availableNumbers.ToArray();
+        // シャッフル（Fisher-Yates）
+        for (int i = numbers.Length - 1; i > 0; i--)
+        {
+            int j = _random.Next(i + 1);
+            (numbers[i], numbers[j]) = (numbers[j], numbers[i]);
+        }
+        return numbers;
+    }
+
+    /// <summary>
+    /// 抽選中フラグを設定し、ルーレットアニメーション開始を通知します。
+    /// </summary>
+    public void StartDrawAnimation()
+    {
+        if (_availableNumbers.Count == 0) return;
+        IsDrawing = true;
+    }
+
+    /// <summary>
+    /// ルーレットで決定された番号を確定し、状態を更新します。
+    /// </summary>
+    /// <param name="number">確定する番号。</param>
+    public void ConfirmDrawnNumber(int number)
+    {
+        if (!_availableNumbers.Contains(number)) return;
+        
+        _availableNumbers.Remove(number);
+        CurrentNumber = number;
+        DrawnNumbers.Insert(0, number);
+        AllNumbers[number - 1].IsDrawn = true;
+        IsDrawing = false;
+        ((RelayCommand)DrawNumberCommand).RaiseCanExecuteChanged();
+    }
 
     /// <summary>
     /// 利用可能な番号からランダムに一つ選び、状態を更新します。
     /// </summary>
     private void DrawNumber()
     {
-        if (_availableNumbers.Count == 0) return;
-        var index = _random.Next(_availableNumbers.Count);
-        var number = _availableNumbers[index];
-        _availableNumbers.RemoveAt(index);
-        CurrentNumber = number;
-        DrawnNumbers.Insert(0, number);
-        AllNumbers[number - 1].IsDrawn = true; // same instance shared inside groups so it updates
-        ((RelayCommand)DrawNumberCommand).RaiseCanExecuteChanged();
+        if (_availableNumbers.Count == 0 || _isDrawing) return;
+        StartDrawAnimation();
     }
 
     /// <summary>
