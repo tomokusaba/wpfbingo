@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WpfBingo.Hosting;
 
 namespace WpfBingo;
 
@@ -19,11 +20,8 @@ public partial class App : Application
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
-                // ViewModel をシングルトン登録
-                services.AddSingleton<BingoViewModel>();
-
-                // MainWindow をトランジェントで登録（必要に応じてシングルトンに変更可）
-                services.AddTransient<MainWindow>();
+                services.AddWpfBingoServices();
+                services.AddHostedService<WpfHostedService>();
             })
             .Build();
     }
@@ -37,10 +35,6 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         await _host.StartAsync();
-
-        var mainWindow = _host.Services.GetRequiredService<MainWindow>();
-        mainWindow.Show();
-
         base.OnStartup(e);
     }
 
