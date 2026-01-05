@@ -1,10 +1,11 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using WpfBingo.ViewModels;
 
-namespace WpfBingo;
+namespace WpfBingo.Views;
 
 /// <summary>
 /// UI ルートを司り、抽選時の各種アニメーションとコンフェッティを制御するメインウィンドウです。
@@ -134,12 +135,10 @@ public partial class MainWindow : Window
         {
             if (e.PropertyName == nameof(BingoViewModel.IsDrawing) && _viewModel.IsDrawing)
             {
-                // ルーレットアニメーション開始
                 StartRouletteAnimation();
             }
             else if (e.PropertyName == nameof(BingoViewModel.CurrentNumber) && _viewModel.CurrentNumber.HasValue && !_isRouletteRunning)
             {
-                // ルーレット完了後の演出
                 PlayDrawCompletedAnimation();
             }
         };
@@ -158,31 +157,22 @@ public partial class MainWindow : Window
             return;
         }
 
-        // 最終的に止まる番号を先に決定
         _rouletteTargetNumber = availableNumbers[_rand.Next(availableNumbers.Length)];
 
-        // ルーレット用の番号リストを作成（ランダムな順序で表示し、最後にターゲット番号で止まる）
         var rouletteNumbers = new List<int>();
-        
-        // ランダムな番号を追加（スクロール用）- 多めに追加してゆっくり感を出す
-        int scrollCount = 50 + _rand.Next(30); // 50〜80個の番号をスクロール
+        int scrollCount = 50 + _rand.Next(30);
         for (int i = 0; i < scrollCount; i++)
         {
             rouletteNumbers.Add(availableNumbers[_rand.Next(availableNumbers.Length)]);
         }
-        
-        // 最後にターゲット番号を追加
         rouletteNumbers.Add(_rouletteTargetNumber);
 
-        // 全画面オーバーレイを表示
         RouletteOverlay.Visibility = Visibility.Visible;
         RouletteStack.Children.Clear();
 
-        // 大きなフォントサイズで表示
         double fontSize = 180;
-        double itemHeight = fontSize * 1.4; // 行の高さ
+        double itemHeight = fontSize * 1.4;
 
-        // 番号のTextBlockを作成
         foreach (var num in rouletteNumbers)
         {
             var textBlock = new TextBlock
@@ -200,21 +190,17 @@ public partial class MainWindow : Window
             RouletteStack.Children.Add(textBlock);
         }
 
-        // Canvasのサイズを設定（オーバーレイのサイズに合わせる）
         RouletteCanvas.Width = 500;
         RouletteCanvas.Height = 320;
 
-        // スタック初期位置を設定
         Canvas.SetLeft(RouletteStack, 0);
         Canvas.SetTop(RouletteStack, 0);
         RouletteStack.Width = 500;
 
-        // アニメーションの設定
         double totalHeight = itemHeight * rouletteNumbers.Count;
-        double centerOffset = (320 - itemHeight) / 2; // 中央に配置するためのオフセット
+        double centerOffset = (320 - itemHeight) / 2;
         double targetY = -(totalHeight - itemHeight - centerOffset);
 
-        // ゆっくり減速しながら止まるアニメーション（5秒間）
         var scrollAnimation = new DoubleAnimation
         {
             From = centerOffset,
@@ -234,14 +220,8 @@ public partial class MainWindow : Window
     private void OnRouletteCompleted()
     {
         _isRouletteRunning = false;
-        
-        // オーバーレイを非表示
         RouletteOverlay.Visibility = Visibility.Collapsed;
-
-        // 番号を確定
         _viewModel.ConfirmDrawnNumber(_rouletteTargetNumber);
-        
-        // 演出再生
         PlayDrawCompletedAnimation();
     }
 
@@ -251,7 +231,7 @@ public partial class MainWindow : Window
     private void PlayDrawCompletedAnimation()
     {
         if (!_viewModel.CurrentNumber.HasValue) return;
-        
+
         var backgroundKey = GetNextBackgroundPatternKey();
         var confettiProfile = GetConfettiProfile(backgroundKey);
 
@@ -259,20 +239,16 @@ public partial class MainWindow : Window
         OverlayGrid.Visibility = Visibility.Visible;
         SpawnConfetti(confettiProfile);
 
-        // Select random patterns
         var overlayKey = _overlayPatterns[_rand.Next(_overlayPatterns.Length)];
         var pulseKey = _pulsePatterns[_rand.Next(_pulsePatterns.Length)];
 
-        // Start overlay animation
         var overlayStoryboard = (Storyboard)FindResource(overlayKey);
         overlayStoryboard.Completed += OverlayStoryboard_Completed;
         overlayStoryboard.Begin();
 
-        // Start pulse animation
         var pulseStoryboard = (Storyboard)FindResource(pulseKey);
         pulseStoryboard.Begin();
 
-        // Prepare background effect visibility resets
         ResetBackgroundEffects();
         if (!string.IsNullOrEmpty(backgroundKey))
         {
@@ -281,25 +257,14 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>
-    /// 背景パターンキーに紐づくコンフェッティ設定を解決します。
-    /// </summary>
-    /// <param name="backgroundKey">背景アニメーションのリソースキー。</param>
-    /// <returns>一致する <see cref="ConfettiProfile"/>。見つからない場合は既定値。</returns>
     private ConfettiProfile GetConfettiProfile(string backgroundKey) =>
         !string.IsNullOrEmpty(backgroundKey) && _confettiProfiles.TryGetValue(backgroundKey, out var profile)
             ? profile
             : _defaultConfettiProfile;
 
-    /// <summary>
-    /// 前回と異なる背景アニメーションキーをランダムに選択します。
-    /// </summary>
     private string GetNextBackgroundPatternKey()
     {
-        if (_backgroundPatterns.Length == 0)
-        {
-            return string.Empty;
-        }
+        if (_backgroundPatterns.Length == 0) return string.Empty;
 
         var index = _rand.Next(_backgroundPatterns.Length);
         if (_backgroundPatterns.Length > 1)
@@ -314,12 +279,8 @@ public partial class MainWindow : Window
         return _backgroundPatterns[index];
     }
 
-    /// <summary>
-    /// 背景演出要素を非表示状態に戻し、再生準備を行います。
-    /// </summary>
     private void ResetBackgroundEffects()
     {
-        // Ensure elements start hidden before animation
         if (BgColorRect.Fill is SolidColorBrush colorBrush)
         {
             colorBrush.Color = (Color)ColorConverter.ConvertFromString("#F5F5F5")!;
@@ -368,9 +329,6 @@ public partial class MainWindow : Window
         "BackgroundAnimationPattern5"
     ];
 
-    /// <summary>
-    /// オーバーレイアニメーション終了時に可視状態とコンフェッティをリセットします。
-    /// </summary>
     private void OverlayStoryboard_Completed(object? sender, EventArgs e)
     {
         OverlayGrid.Visibility = Visibility.Collapsed;
@@ -378,10 +336,6 @@ public partial class MainWindow : Window
         if (sender is Storyboard sb) sb.Completed -= OverlayStoryboard_Completed;
     }
 
-    /// <summary>
-    /// 指定プロファイルに従ったコンフェッティを生成・落下させます。
-    /// </summary>
-    /// <param name="profile">描画に使用するプロファイル。</param>
     private void SpawnConfetti(ConfettiProfile profile)
     {
         ConfettiCanvas.Children.Clear();
@@ -475,12 +429,6 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>
-    /// プロファイルで指定された形状から対応する <see cref="Shape"/> を生成します。
-    /// </summary>
-    /// <param name="shapeType">生成する図形種別。</param>
-    /// <param name="size">基準となるサイズ。</param>
-    /// <returns>描画する <see cref="Shape"/>。</returns>
     private static Shape CreateConfettiShape(ConfettiShape shapeType, double size)
     {
         Shape shape = shapeType switch
@@ -509,9 +457,6 @@ public partial class MainWindow : Window
         return shape;
     }
 
-    /// <summary>
-    /// 中央表示枠のサイズ変化に合わせてフォントサイズを再調整します。
-    /// </summary>
     private void CurrentNumberBorder_SizeChanged(object sender, SizeChangedEventArgs e) =>
         _viewModel.AdjustCurrentNumberFontSize(e.NewSize.Width, e.NewSize.Height);
 
@@ -540,36 +485,20 @@ internal enum ConfettiShape
 /// </summary>
 internal sealed class ConfettiProfile
 {
-    /// <summary>生成するパーティクル数。</summary>
     public int Count { get; init; }
-    /// <summary>サイズの最小値。</summary>
     public double SizeMin { get; init; }
-    /// <summary>サイズの最大値。</summary>
     public double SizeMax { get; init; }
-    /// <summary>落下に掛かる時間の下限（秒）。</summary>
     public double DurationMin { get; init; }
-    /// <summary>落下に掛かる時間の上限（秒）。</summary>
     public double DurationMax { get; init; }
-    /// <summary>開始遅延の最大値（秒）。</summary>
     public double DelayMax { get; init; }
-    /// <summary>左右への振れ幅。</summary>
     public double HorizontalDrift { get; init; }
-    /// <summary>画面下に抜ける距離。</summary>
     public double VerticalOvershoot { get; init; }
-    /// <summary>生成位置の最小オフセット。</summary>
     public double StartOffsetMin { get; init; }
-    /// <summary>生成位置の最大オフセット。</summary>
     public double StartOffsetMax { get; init; }
-    /// <summary>不透明度の最小値。</summary>
     public double OpacityMin { get; init; }
-    /// <summary>不透明度の最大値。</summary>
     public double OpacityMax { get; init; }
-    /// <summary>回転量の最小値。</summary>
     public double RotationMin { get; init; }
-    /// <summary>回転量の最大値。</summary>
     public double RotationMax { get; init; }
-    /// <summary>使用する色パレット。</summary>
     public string[] Colors { get; init; } = [];
-    /// <summary>使用する図形の種類リスト。</summary>
     public ConfettiShape[] Shapes { get; init; } = [];
 }

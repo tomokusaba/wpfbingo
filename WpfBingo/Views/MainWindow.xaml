@@ -1,4 +1,4 @@
-﻿<Window x:Class="WpfBingo.MainWindow"
+<Window x:Class="WpfBingo.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -83,7 +83,7 @@
             <DoubleAnimation Storyboard.TargetName="OverlayNumberRotate" Storyboard.TargetProperty="Angle" From="0" To="720" Duration="0:0:1.2"/>
         </Storyboard>
 
-        <!-- Background animation patterns (use BgColorRect & effect shapes) -->
+        <!-- Background animation patterns -->
         <Storyboard x:Key="BackgroundAnimationPattern1">
             <ColorAnimation Storyboard.TargetName="BgColorRect" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" From="#F5F5F5" To="#FFE082" Duration="0:0:0.25" AutoReverse="True"/>
             <DoubleAnimation Storyboard.TargetName="BgRadialFlash" Storyboard.TargetProperty="Opacity" From="0" To="0.55" Duration="0:0:0.18" AutoReverse="True"/>
@@ -172,12 +172,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <!-- Background effect layer (behind content) -->
+        <!-- Background effect layer -->
         <Grid Grid.RowSpan="3" IsHitTestVisible="False" Panel.ZIndex="0">
             <Canvas Width="1000" Height="800">
-                <!-- Color rectangle for brush animation -->
                 <Rectangle x:Name="BgColorRect" Width="1000" Height="800" Fill="{StaticResource WindowBgBrush}"/>
-                <!-- Radial flash ellipse -->
                 <Ellipse x:Name="BgRadialFlash" Width="280" Height="280" Opacity="0" RenderTransformOrigin="0.5,0.5" Canvas.Left="360" Canvas.Top="260">
                     <Ellipse.Fill>
                         <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
@@ -187,7 +185,6 @@
                     </Ellipse.Fill>
                     <Ellipse.RenderTransform><ScaleTransform ScaleX="0" ScaleY="0"/></Ellipse.RenderTransform>
                 </Ellipse>
-                <!-- Gradient sweep rectangle -->
                 <Rectangle x:Name="BgGradientSweep" Width="600" Height="900" Opacity="0" RenderTransformOrigin="0.5,0.5">
                     <Rectangle.Fill>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -198,7 +195,6 @@
                     </Rectangle.Fill>
                     <Rectangle.RenderTransform><TranslateTransform X="-1000" Y="0"/></Rectangle.RenderTransform>
                 </Rectangle>
-                <!-- Shimmer rectangle -->
                 <Rectangle x:Name="BgShimmer" Width="400" Height="900" Opacity="0" RenderTransformOrigin="0.5,0.5">
                     <Rectangle.Fill>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -210,14 +206,10 @@
                     </Rectangle.Fill>
                     <Rectangle.RenderTransform><TranslateTransform X="-800" Y="0"/></Rectangle.RenderTransform>
                 </Rectangle>
-                <!-- Pulse ring -->
                 <Ellipse x:Name="BgPulseRing" Width="260" Height="260" StrokeThickness="8" StrokeDashArray="2 4" Opacity="0" Canvas.Left="370" Canvas.Top="270" RenderTransformOrigin="0.5,0.5">
-                    <Ellipse.Stroke>
-                        <SolidColorBrush Color="#FFE082"/>
-                    </Ellipse.Stroke>
+                    <Ellipse.Stroke><SolidColorBrush Color="#FFE082"/></Ellipse.Stroke>
                     <Ellipse.RenderTransform><ScaleTransform ScaleX="0.3" ScaleY="0.3"/></Ellipse.RenderTransform>
                 </Ellipse>
-                <!-- Diagonal glow bar -->
                 <Rectangle x:Name="BgDiagonalGlow" Width="1400" Height="220" Opacity="0" Canvas.Left="-200" Canvas.Top="140" RenderTransformOrigin="0.5,0.5">
                     <Rectangle.Fill>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -253,14 +245,12 @@
                 <Button Command="{Binding ResetCommand}" Content="リセット" FontSize="18" FontWeight="Bold" Padding="30,15" Margin="10,0" Background="#F44336" Foreground="White" BorderThickness="0"/>
             </StackPanel>
         </Grid>
-        <!-- Grouped numbers (always fully visible) -->
+        <!-- Grouped numbers -->
         <Border Grid.Row="2" Margin="20" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="10">
             <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
                 <ItemsControl ItemsSource="{Binding DynamicColumns}">
                     <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
+                        <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -268,11 +258,7 @@
                                 <StackPanel>
                                     <TextBlock Text="{Binding Label}" FontSize="16" FontWeight="Bold" Foreground="#1976D2" HorizontalAlignment="Center" Margin="0,0,0,6"/>
                                     <ItemsControl ItemsSource="{Binding Numbers}" ItemTemplate="{StaticResource GroupedNumberTemplate}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                     </ItemsControl>
                                 </StackPanel>
                             </Border>
@@ -283,23 +269,12 @@
         </Border>
         <!-- Roulette Overlay -->
         <Grid x:Name="RouletteOverlay" Grid.RowSpan="3" Background="#E0FF9800" Visibility="Collapsed" IsHitTestVisible="False" Panel.ZIndex="90">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <!-- 中央のマスク（現在の番号が見える窓） -->
-            <Border HorizontalAlignment="Center" VerticalAlignment="Center" 
-                    Background="#FF9800" CornerRadius="40" 
-                    Width="500" Height="320" ClipToBounds="True">
-                <Border.Effect>
-                    <DropShadowEffect Color="#000000" Opacity="0.5" BlurRadius="40" ShadowDepth="10"/>
-                </Border.Effect>
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="#FF9800" CornerRadius="40" Width="500" Height="320" ClipToBounds="True">
+                <Border.Effect><DropShadowEffect Color="#000000" Opacity="0.5" BlurRadius="40" ShadowDepth="10"/></Border.Effect>
                 <Canvas x:Name="RouletteCanvas" ClipToBounds="True">
-                    <StackPanel x:Name="RouletteStack" Orientation="Vertical" HorizontalAlignment="Center">
-                        <!-- 動的に番号を追加 -->
-                    </StackPanel>
+                    <StackPanel x:Name="RouletteStack" Orientation="Vertical" HorizontalAlignment="Center"/>
                 </Canvas>
             </Border>
-            <!-- 上下のグラデーションオーバーレイ（スロット機風） -->
             <Border HorizontalAlignment="Center" VerticalAlignment="Center" Width="500" Height="320" IsHitTestVisible="False">
                 <Grid>
                     <Border VerticalAlignment="Top" Height="80">
@@ -318,12 +293,11 @@
                             </LinearGradientBrush>
                         </Border.Background>
                     </Border>
-                    <!-- 中央のライン（停止位置の目印） -->
                     <Border VerticalAlignment="Center" Height="6" Background="#FFFFEB3B" Opacity="0.8"/>
                 </Grid>
             </Border>
         </Grid>
-        <!-- Overlay -->
+        <!-- Result Overlay -->
         <Grid x:Name="OverlayGrid" Grid.RowSpan="3" Background="#80000000" Visibility="Collapsed" Opacity="0" IsHitTestVisible="False" Panel.ZIndex="100">
             <Canvas x:Name="ConfettiCanvas"/>
             <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
